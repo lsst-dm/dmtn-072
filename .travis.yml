@@ -3,18 +3,14 @@ language: python
 matrix:
   include:
     - python: "3.5"
-      env: LTD_MASON_BUILD=true
-install:
-  - pip install -r requirements.txt
-  - pip install "ltd-mason>=0.2,<0.3"
+before_install:
+  - "pip install 'lander>=0.1.0,<0.2'"
 script:
-  - sphinx-build -b html -a -n -d _build/doctree . _build/html
-after_success:
-  - ltd-mason-travis --html-dir _build/html
+  # Compile PDF using containerized lsst-texmf
+  - "docker run --rm -v `pwd`:/workspace -w /workspace lsstsqre/lsst-texmf:latest sh -c 'make'"
+  # Deploy website. See https://github.com/lsst-sqre/lander for CLI options
+  - "lander --pdf DMTN-072.pdf --upload --lsstdoc DMTN-072.tex --env=travis --ltd-product dmtn-072"
 env:
-  global:
-    - LTD_MASON_BUILD=false  # disable builds in regular text matrix
-    - LTD_MASON_PRODUCT="dmtn-072"
     # Add AWS and LTD Keeper credentials as encrypted secrets here
 
     - secure: "LR3a+nu5OH4F9YNDabWCwluSufZ0ydJ5w4ReByI3S1sJi4anxG+Gx/scQkgngV/puM+5jpv5eTnLiLEfEXJwewOdNfKrKKnlvkSe1FG77kNBywljENQGaOOZ3inAwVIrlXVDYWO+jYrLqM2cjcTbocVSQmKPlrQaCD/qHIGxBumk0tNaDBVcN6IKQiOpmrk9fhowQkLFKWWYU3PTZhe2uDcMFESQSrUVwN6pEMhtX8UKes4qvLfNFX2HECJW27/A8T8IF4IiS4QVuEoD3GAoGdOmVGfkQw89mg0euVJgVMdpshAajcDiPTpqM4oMYmj1bY6rQA606CoQL0DHKPUtkTzPSOq7LRBEw5TxPjTLMW8a7e1Ue5xt/Zs8Gy5t7a60/ZsPjiUXyUqWsi5i70HHpLWmSbkaO7NroHQVZs/O7HdgJ2fNNhMgXCq+GAdB0bhKvQUxQ1r4d+LsvH+eUhzjSkMZBDhvRFjks7c777KzZ+9DUxDlG1LGfqWtrQDrgjwoOCobFr2sBCMbyotaxnw4Iq/4iT5WpsT4rZhsNRNzswXmpDSAHOqlvK4hbBp7633fPNydyGlJG8fCyCQRozBeCTSvwNyNI609HYEHT2ChtxCR4n6aorpjFoEX0qMlcNS4Sj4svCWV3Ap3pMsbGZQ3pD7FixAG7ck2Yk24Itck6Lw="
