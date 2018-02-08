@@ -1,0 +1,20 @@
+\tiny \begin{longtable} { |p{0.22\textwidth}  |r  |r  |r |} 
+\caption{Various inputs used to cost Amazon \label{tab:AmazonInputs}}\\ 
+\hline 
+{Amazon }&{3 yr price}&{1 year price}&{Price GFLOP} \\ \hline
+{Optimistic price GFLOP (c5.18xlarge)}&{\$29,637.00}&{\$9,879.00}&{\$8.86} \\ \hline
+{Likely price GFLOP (c4.8xlarge)}&{\$16,329.00}&{\$5,443.00}&{\$10.02} \\ \hline
+{Pessemistic price GFLOP}&{}&{\$9,487.00}&{\$322.20} \\ \hline
+{GFLOP/ s (see arxiv paper c4.8xlarge)}&{530}&& \\ \hline
+{GFLOP/ s peak (see arxiv paper c4.8xlarge)}&{1630}&& \\ \hline
+{GFLOP/ s c5.18xlarge (Hoblitt)}&{3345.41}&& \\ \hline
+{Inefficiency factor}&{6}&& \\ \hline
+{Machine lifetime}&{3}&& \\ \hline
+{Cost per TB for machine lifetime}&{monthly/ GB}&{Yearl/ TB}& \\ \hline
+{Optm. (cheaper than S3 Glacier?) }&{\$0.007}&{\$84.00}& \\ \hline
+{Likely (AWS S3)}&{\$0.021}&{\$252.00}& \\ \hline
+{Pess. (GPFS on AWS some SSD) }&{\$0.120}&{\$1,440.00}& \\ \hline
+{I/ O pricing }&{GB}&{TB }& \\ \hline
+{Optm. (Min listed price)}&{\$0.05}&{\$50.00}& \\ \hline
+{Pess. (S3 out max price)}&{\$0.09}&{\$90.00}& \\ \hline
+\end{longtable} \normalsize

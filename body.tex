@@ -1,0 +1,165 @@
+\section{Introduction} \label{sect:intro}
+
+The complexity of LSST's sizing model, and the intricacies of planning spreadsheets developed by NCSA, make it hard to understand and assess the overall compute budget for Data Management, especially vis-a-vis potential alternatives.
+
+To address this issue, I develop a simplified hardware cost model\footnote{A simplified model has been discussed for some years.}, and apply it to both physical hardware procurement (the current baseline) and a representative “cloud-based” computing service (Amazon AWS).
+This demonstrates that LSST's requirements would theoretically be addressed by commodity cloud computing
+infrastructure if the I/O costs could be mitigated.
+
+
+\section{A simplified computing cost model}
+\label{sect:model}
+
+\subsection{Preamble}
+
+One of the most notoriously difficult things to assess in any astronomy project is how much compute power is needed and how much it will cost to get it.
+
+An alternative model I have used in other  projects it to simply estimate the number of floating point operations (FLOPs) and storage needed at a point in time and use those figures to estimate an instantaneous cost. The model can then be scaled by assuming prices continue to evolve as they have done previously.
+
+The FLOP itself is a notorious unit, so it is worth clarifying its definition. In this document we use FLOP, plural FLOPs, to mean FLoating point OPeration: a unit describing the total number of calculations required to complete some calculation.
+FLOP/s, by contrast, refers to floating point operations \emph{per second}, a measure of the instantaneous compute power needed or available from some particular processor.
+For an example of the former use, refer to the first row of \tabref{tab:Inputs}; for the latter, line 4 of the same table.
+
+\newpage
+\subsection{Total compute requirements}
+
+\input{Inputs}
+
+The DM Sizing Model (\citeds{LDM-138, LDM-144}) contains estimates of the scale of computing which LSST must undertake; important values summarized in \tabref{tab:Inputs} for convenience. In particular, note that the first year of operations is expected to require around $4.7\times10^{20}$ FLOPs for data release processing, with an additional sustained $25,670$\,GFLOP/s for alert processing. During the first data release, this (na\"ively) averages to $15,034$\,GFLOP/s continuously (ie, assuming that all compute systems are kept busy continuously).
+
+During the Construction period, we will deploy approximately 20\% of the Data Release 1 capacity; we reflect this in \tabref{tab:Inputs} for 2017, and again for an assumed hardware refresh in 2021. This three year refresh cadence is typical across the industry, and has the convenient effect of being directly comparable with Amazon's three year pricing on their cloud compute offering.
+
+\newpage
+\subsection{Physical hardware estimates}
+
+\input{Physical}
+
+We convert the compute requirements developed in the previous section into dollar values by combining:
+
+\begin{itemize}
+
+  \item{LINPACK and Flops\footnote {\url{https://github.com/Mysticial/Flops}} as benchmarks of  compute hardware;}
+  \item{Costings based on experience from Gaia and other projects.}
+
+\end{itemize}
+the input figures are provided in \tabref{tab:PhysicalInputs}.
+\input{PhysicalInputs}
+
+Based on these figures, we expect a wide range of possible costings: this reflects the variety of hardware available (from cheap commodity desktop PCs to Cray supercomputers).
+We combine these values using formula based on PERT: given multiple estimates, we assume the most plausible true value is
+$(\mathrm{optimistic}  + 4\times\mathrm{likely} + \mathrm{pessimistic})/6$. Throughout, we use twice the optimistic price as the likely value for physical hardware, and 1.5 times for cloud systems.
+
+We follow a similar procedure to estimate storage costs. A range of possible prices exist from ultra-cheap build-your-own systems around \$40/TB\footnote{Estimate from Szalay, JHU, private communication.} to full solutions like NetApp (\$300 - \$1K/TB) or Non-Volatile Memory(\$3K/TB) : these give good optimistic, likely  and pessimistic prices to work with.
+For 2017 we need to purchase about 1PB (1000\,TB) so the optimistic and pessimistic prices are approximately \$40K and \$3M allowing.
+
+The result of these estimates is shown in \tabref{tab:Physical}. Note that the headline cost is around \$900k in 2017; we present estimates for several other years throughout Construction and Operations, and provide a summary of the total cost through the construction period. Year 2023 is DR3 and the first non construction year.
+
+An optimistic and pessimistic price scaling is also applied these rates are shown in the end of \tabref{tab:Inputs}. In fact the price of machines usually does not fall but for the same price a more power full machine is usually available for our purposes the distinction does not matter.
+Likewise there is a lot of licensing, networking interconnect and racks which average over a number of machines if we buy physical hardware - this is simply bundled in the unit GFLOP price.\footnote{I have not gone back to work this number out for 2017 purchases.}
+
+\newpage
+\subsection{Cloud computing estimates}
+
+\input{Amazon}
+
+To properly size Amazon we should run some pipeline code and benchmark it. Here a paper \cite{2017arXiv170202968M}  was used which provided LINPACK numbers for a specific type of Amazon machine. The peak and average FLOPs are used to make the optimistic and pessimistic prices per GFLOP.
+We use the three year leasing price, which makes these estimates comparable to the lifetime of directly purchased hardware.
+DM code is unlikely be reach the same level of efficiency as the LINPACK benchmark, so we build in a further inefficiency factor to produce the pessimistic price.
+In addition since we are using LINPACK and our code may not be efficient on these machines a further inefficiency factor is used to arrive at the pessimistic price.
+The results of these considerations are presented in \tabref{tab:Amazon}.
+
+Note that a major component of the expense when running on cloud systems is for egress bandwidth: the cost of transferring data out of the cloud system itself.
+For convenience, \tabref{tab:Amazon} presents total costs both inclusive and exclusive of this I/O cost
+This issue is discussed in detail in \secref{sect:io}
+
+\input{AmazonInputs}
+
+Prices assumed for the Amazon systems are shown in \tabref{tab:AmazonInputs}.
+These are drawn from figures published on the Amazon website\footnote{\url{https://aws.amazon.com/ec2/pricing/reserved-instances/pricing/}, \url{https://aws.amazon.com/ec2/pricing/on-demand/}}.
+
+\section{Potential ways forward}\label{sect:potential}
+
+It is clear the cloud model is now well established and here to stay.
+It is incumbent upon us to consider whether and how we can best take advantage of it for LSST.
+In this section, we discuss a number of potential migration scenarios, and discuss further avenues for investigation.
+
+
+\subsection{Migration to the cloud}\label{sect:move}
+
+Both Amazon AWS and Microsoft Azure now support the Kubernetes deployment and management system used by DM.
+This provides us with a lot of flexibility to port our system across service offerings, and would enable us to easily adopt a hybrid cloud-physical infrastructure.
+
+Moving to a cloud-based infrastructure would also likely save on personnel, as no hands-on hardware maintenance would be required.
+Although this is equivalent to a relatively small fraction of the construction budget, it would represent a substantial sum dedicated to non-core-business during operations.
+
+The numbers presented in \tabref{tab:Amazon} assume a wholesale migration of all DM functionality to the cloud.
+Unfortunately, this is impractical: for example, we are committed to providing the Chilean DAC in Chile\footnote{Though one could discuss the new Amazon AWS offering in Chile with the Chileans.}, and some physical hardware must remain on the mountain and in the Commissioning Cluster.
+However, there are potentially a number of opportunities to migrate a subset of DM services to the cloud.
+
+\subsubsection{Developer Services}
+
+DM already uses cloud-based systems for continuous integration (CI) testing\footnote{Due to the recent (Jan 2018) problems with Nebula in NCSA the test data was moved to Amazon.} and for standing up JupyterHub instances for workshops and demos.
+These are relatively easy to set up\footnote{\url{https://github.com/lsst-sqre/jupyterlabdemo}} and have proven reliable.
+
+A move in this direction would be popular with developers: it enables us to provide them with greater flexibility over the systems in use, and the ability to self-manage their own development environment when applicable.
+This would address numerous points of contention with our current infrastructure.
+
+We do note, though, that it is important to maintain some developer infrastructure in large facilities to make sure we understand our deployment environment and to have access to large-scale extra-cloud data storage.
+
+\subsubsection{Cloud based Science Platform}
+\label{sect:platform}
+
+The Science Platform is intrinsically a cloud-oriented solution to the data transfer problem: it envisions user code being collocated with the data on which it is running.
+
+To date, the prototype DAC (PDAC) has been somewhat successful in the NCSA data facility.
+However, delays in procurement and other work, have made it difficult to capitalize on this success.
+A cloud based system would enable us to sidestep many of these concerns.
+
+It is worth noting that the EPO subsystem immediately plans to deploy their systems to cloud infrastructure.
+As such, they would act as a “proving ground” for the bigger DM project.
+However, note that DM's much larger data volumes make it more at risk of data storage and ultimately I/O problems as discussed in \secref{sect:io}.
+
+The Qserv database system has not yet been tested in a could based environment.
+However, we note that it is now deployable with Kubernetes, and no longer requires special hardware: physically attached storage is needed, but this is available on the Google and Amazon cloud offerings.
+Proper testing would be needed to understand how Qserv performs in this environment before committing to it.
+
+A key benefit of a cloud-based Science Platform would be scalability: when user demands exceed the 10\% of the compute budget dedicated to serving them, they would seamlessly be able to purchase more capacity from the cloud provider.
+There is no analogue to this in terms of physical infrastructure.
+
+\subsubsection{Consider cloud based data release processing}
+\label{sect:drp}
+
+Use of cloud based systems for producing annual data releases would avoid I/O issues: the result would only need to be collected once.
+Furthermore, if combined with a cloud-based Science Platform and backup service (e.g. Amazon Glacier), almost all I/O could be avoided altogether.
+
+\subsubsection{Consider cloud based prompt processing}
+
+Prompt processing is the the only questionable part of processing on the cloud.
+To meet the one minute goal for processing money has been put in building a rapid transfer of files to NCSA.
+We would have to assess if we could transfer files into the cloud fast enough to make the alert processing work to schedule.
+The fast networks already deployed for LSST should be applicable, but further analysis is required.
+
+\subsection{I/O: the cloud's Achilles heel}\label{sect:io}
+
+The main expense with the cloud is neither the storage nor compute, but rather than of transferring data out (``egress''): see the summary lines in \tabref{tab:Amazon}.
+If most science is done in the cloud this is not a problem (\S\S\ref{sect:platform} \& \ref{sect:drp}).
+Alternatively, it may be possible to develop a partnership with an organization willing to give us a preferential rate on these services.
+If we went down this route we would probably want to stage the output catalogs in some place after bulk transfer i.e. only do large transfer out of the cloud once.
+The providers say ``call us'' to discuss large transfers: we should, at least, start that conversation.
+
+We also note that total bandwidth may be an issue, but there are ESNET endpoints to the cloud at 10Gbps\footnote{\url{http://fasterdata.es.net/performance-testing/DTNs/}}.
+
+\section{Conclusion}
+
+The model and scenarios presented in this document demonstrate that further consideration of a cloud-based infrastructure is merited.
+Future investigations should consider:
+
+\begin{itemize}
+
+  \item{Profiling the performance of the DM stack on cloud infrastructure;}
+  \item{Discussions with contacts at Google and Amazon;}
+  \item{Migrating some developer services and environments to the cloud.}
+
+\end{itemize}
+
+The last point is particularly important: if we can develop and test well on the cloud it would tell us a lot about the capabilities and limitations of the main vendors.
