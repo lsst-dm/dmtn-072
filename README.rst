@@ -14,7 +14,7 @@ Simplified computing cost  model and exploration of Cloud implementations
 DMTN-072
 ========
 
-This is a draft document and will yet change.} This document introduces a simplified model for computing and storage costing. It also attempts to apply that model to purchasing going forward for both physical and cloud based systems.
+This is a draft document and will yet change. This document introduces a simplified model for computing and storage costing. It also attempts to apply that model to purchasing going forward for both physical and cloud based systems.
 
 **Links:**
 
@@ -26,22 +26,15 @@ This is a draft document and will yet change.} This document introduces a simpli
 
 Build this technical note
 =========================
+
 You need https://github.com/lsst/lsst-texmf   to build this doc. 
 You can clone this repository and build the technote locally with `xelatex`_:
-
 
 .. code-block:: bash
 
    git clone https://github.com/lsst-dm/dmtn-072
    cd dmtn-072
    make 
-
-Updating metadata
-=================
-
-This technote's metadata is maintained in ``metadata.yaml``.
-In this metadata you can edit the technote's title, authors, publication date, etc..
-``metadata.yaml`` is self-documenting with inline comments.
 
 Using the bibliographies
 ========================
@@ -51,7 +44,7 @@ Add new bibliography items to the ``local.bib`` file in the root directory (and 
 
 ****
 
-Copyright 2018 AURA/LSST
+Copyright 2018 Association of Universities for Research in Astronomy, Inc.
 
 This work is licensed under the Creative Commons Attribution 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by/4.0/.
 
